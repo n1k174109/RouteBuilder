@@ -7,8 +7,10 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 public class NewMain {
@@ -57,6 +59,7 @@ public class NewMain {
         notRoad.add("milestone");
         notRoad.add("platform");
         notRoad.add("crossing");
+        BufferedReader read;
         DocumentBuilderFactory dbf;
         DocumentBuilder db;
         Document doc;
@@ -66,12 +69,21 @@ public class NewMain {
         analyzeXML(doc, nodeElem, wayElem, relElem, notRoad);
         buildNode(doc);
         Graph graph = new Graph();
+        read = new BufferedReader(new InputStreamReader(System.in));
+        double lat, lon;
+        lat = Double.parseDouble(read.readLine());
+        lon = Double.parseDouble(read.readLine());
+        GraphNode nodeA = null;
         for (GraphNode node:
              nodes) {
             graph.addNode(node);
+            node.addNextNode(nodes.iterator().next(), (int)calcDistNodes(node.getLAT(), node.getLON(),nodes.iterator().next().getLAT(),nodes.iterator().next().getLON()));
+            if(nodes.contains(lat) && nodes.contains(lon)){
+                nodeA = node;
+            }
         }
 
-        graph = DijkstraAlgorithm.calcShortWay(graph, nodes.get(0));
+        graph = DijkstraAlgorithm.calcShortWay(graph, nodeA);
         System.out.println(graph.getNodes());
 
         //buildWay(doc);
@@ -144,5 +156,13 @@ public class NewMain {
         //System.out.println(nodes);
     }
     private void buildWay(Document doc) {
+    }
+    private double calcDistNodes(double lat1, double lon1, double lat2, double lon2) {
+        final double radEarth = 6371.009;
+        double dLAT = lat2 - lat1;
+        double dLON = lon2 - lon1;
+        double dO = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(dLAT/2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dLON/2),2)));
+        double Dist = radEarth * dO;
+        return Dist;
     }
 }
