@@ -1,15 +1,14 @@
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class GraphWay {
-    private long ref;
+    private long id;
 
-    public GraphWay(long ref) {
-        this.ref = ref;
-    }
 
     public long getID() {
-        return ref;
+        return id;
     }
+
 }

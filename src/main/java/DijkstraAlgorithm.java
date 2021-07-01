@@ -4,11 +4,13 @@ import java.util.Map;
 import java.util.Set;
 
 public class DijkstraAlgorithm {
-    public static Graph calcShortWay(Graph graph, GraphNode source) {
+    public static Graph calcShortWay(Graph graph, GraphNode source, GraphNode end) {
+
         source.setDist(0);
 
         Set visitedNodes = new HashSet<>();
         Set unvisitedNodes = new HashSet<>();
+        unvisitedNodes.add(source);
 
         while (unvisitedNodes.size() != 0) {
             GraphNode currNode = getLowDistNode(unvisitedNodes);
@@ -16,12 +18,18 @@ public class DijkstraAlgorithm {
             for( Map.Entry<GraphNode, Integer> adjacencyPair: currNode.getAdjNodes().entrySet()) {
                 GraphNode adjacentNode = adjacencyPair.getKey();
                 Integer edgeWeight = adjacencyPair.getValue();
+
                 if (!visitedNodes.contains(adjacentNode)) {
                     CalcMinDist(adjacentNode, edgeWeight, currNode);
                     unvisitedNodes.add(adjacentNode);
                 }
             }
+
             visitedNodes.add(currNode);
+//            if (!currNode.getDist().equals(0)) { System.out.print(" -" + currNode.getDist() + "-> " + currNode.getLAT() + "," + currNode.getLON()); }
+//            else System.out.print(currNode.getLAT() + ", " + currNode.getLON());
+            System.out.print(" -" + currNode.getDist() + "-> " + currNode.getLAT() + "," + currNode.getLON());
+            if(currNode.equals(end)) break;
         }
         return graph;
     }
