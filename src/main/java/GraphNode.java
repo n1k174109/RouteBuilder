@@ -8,7 +8,7 @@ public class GraphNode {
     private double lat, lon;
     private List<GraphNode> shortWay = new LinkedList<>();
     private Integer dist = Integer.MAX_VALUE;
-    private Map<GraphNode, Integer> adjNodes = new HashMap<>();
+    private Map<GraphNode, Integer> relatedNodes = new HashMap<>();
     
     public GraphNode(long id, double lat, double lon) {
         this.id = id;
@@ -20,15 +20,15 @@ public class GraphNode {
     public double getLON() { return lon; }
 
     public void addNextNode(GraphNode next, int dist) {
-        adjNodes.put(next, dist);
+        relatedNodes.put(next, dist);
     }
 
-    public Map<GraphNode, Integer> getAdjNodes() {
-        return adjNodes;
+    public Map<GraphNode, Integer> getRelatedNodes() {
+        return relatedNodes;
     }
 
-    public void setAdjNodes(Map<GraphNode, Integer> adjNodes) {
-        this.adjNodes = adjNodes;
+    public void setRelatedNodes(Map<GraphNode, Integer> relatedNodes) {
+        this.relatedNodes = relatedNodes;
     }
 
     public Integer getDist() {

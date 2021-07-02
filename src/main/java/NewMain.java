@@ -44,35 +44,31 @@ public class NewMain {
         lon = Double.parseDouble(read.readLine());
         lat2 = Double.parseDouble(read.readLine());
         lon2 = Double.parseDouble(read.readLine());
-        GraphNode nodeA = null;
-        GraphNode nodeZ = null;
+        GraphNode nodeStart = null;
+        GraphNode nodeEnd = null;
         for (int i = 0; i < nodes.size(); i++) {
             if (nodes.get(i).getLAT() == lat && nodes.get(i).getLON() == lon) {
-                nodeA = nodes.get(i);
+                nodeStart = nodes.get(i);
             }
             if (nodes.get(i).getLAT() == lat2 && nodes.get(i).getLON() == lon2) {
-                nodeZ = nodes.get(i);
+                nodeEnd = nodes.get(i);
             }
         }
 
-//            for (Map.Entry entry : waysList.entrySet()) {
-//                if (nodes.iterator().equals(entry.getValue()))
-//                    GraphNode currNode = nodes.get(i);
-//
-//                if (entry.getValue().equals(currNode.getID())) {
-//                    graph.addNode(currNode);
-//
-//                    GraphNode nextNode = nodes.get(i + 1);
-//                    currNode.addNextNode(nextNode, (int) calcDistNodes(currNode.getLAT(), currNode.getLON(), nextNode.getLAT(), nextNode.getLON()));
-//
-//                    if (lat == currNode.getLAT() && lon == currNode.getLON()) nodeA = currNode;
-//                    if (lat2 == currNode.getLAT() && lon2 == currNode.getLON()) nodeZ = currNode;
-//
+        for (Map.Entry wayKeyValue : waysList.entrySet()) {
+            for (int i = 0; i < nodes.size(); i++) {
+                GraphNode currNode = nodes.get(i);
 
-
-
-//        if (graph != null) System.out.println(graph.getNodes());
-        graph = DijkstraAlgorithm.calcShortWay(graph, nodeA, nodeZ);
+                    if (wayKeyValue.getValue().toString().contains(String.valueOf(currNode.getID()))) {
+                        graph.addNode(currNode);
+                        if (i != nodes.size() - 1) {
+                            GraphNode nextNode = nodes.get(i + 1);
+                            currNode.addNextNode(nextNode, (int) calcDistNodes(currNode.getLAT(), currNode.getLON(), nextNode.getLAT(), nextNode.getLON()));
+                        }
+                    }
+                }
+            }
+        graph = DijkstraAlgorithm.calcShortWay(graph, nodeStart, nodeEnd);
     }
 
     private void analyzeXML(Document doc) {
@@ -115,7 +111,9 @@ public class NewMain {
         for (int j = 0; j < docChildren.getLength(); j++) {
             Node docChild = docChildren.item(j);
             List<Long> nodesList = new ArrayList<>();
+
             if (docChild.getNodeType() != Node.ELEMENT_NODE) continue;
+
             if (docChild.getNodeName().equals("node")) {
 
                 NamedNodeMap attributes = docChild.getAttributes();
@@ -125,7 +123,7 @@ public class NewMain {
 
                 if (neededNodes.contains(nodeId)) {
                     nodes.add(new GraphNode(nodeId, lat, lon));
-                    System.out.println(nodeId + " " + lat + " " + lon);
+//                    System.out.println(nodeId + " " + lat + " " + lon);
                 }
 
             } else if (docChild.getNodeName().equals("way")) {
@@ -136,7 +134,9 @@ public class NewMain {
                     Node nodeChild = nodeChildren.item(i);
                     if (nodeChild.getNodeType() != Node.ELEMENT_NODE) continue;
                     NamedNodeMap attrib = nodeChild.getAttributes();
+
                     if (!nodeChild.getNodeName().equals("nd")) continue;
+
                     long wayId = Long.parseLong(attributes.getNamedItem("id").getNodeValue());
                     long ref = Long.parseLong(attrib.getNamedItem("ref").getNodeValue());
                     if (neededWays.contains(wayId) && neededNodes.contains(ref)) {
@@ -144,7 +144,6 @@ public class NewMain {
                         waysList.put(wayId, nodesList);
                     }
                 }
-
             }
         }
 //        System.out.println(waysList);
