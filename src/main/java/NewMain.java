@@ -19,6 +19,7 @@ public class NewMain {
     private Set<Long> neededWays = new HashSet<>();
     private ArrayList<String> Road = new ArrayList<>();
     private Map<Long, List<Long>> waysList = new HashMap<>();
+    private List<GraphWay> ways = new ArrayList<>();
 
     private int nodeElem = 0;
 
@@ -34,6 +35,7 @@ public class NewMain {
         dbf = DocumentBuilderFactory.newInstance();
         db = dbf.newDocumentBuilder();
         doc = db.parse(new File("src/res/nizhnekamsk.xml"));
+        Edge edge = new Edge();
         initializeRoad(Road);
         analyzeXML(doc);
         buildNode(doc);
@@ -55,20 +57,24 @@ public class NewMain {
             }
         }
 
-        for (Map.Entry wayKeyValue : waysList.entrySet()) {
-            for (int i = 0; i < nodes.size(); i++) {
-                GraphNode currNode = nodes.get(i);
+//        for (Map.Entry wayKeyValue : waysList.entrySet()) {
+//            List<Long> valueForNodes = new ArrayList<Long>(waysList.get(wayKeyValue.getKey()));
+//            for (int i = 0; i < nodes.size(); i++) {
+//                GraphNode currNode = nodes.get(i);
+//
+//                    if (valueForNodes.contains(currNode.getID())) {
+//                        if (i < nodes.size() - 1) {
+//                            GraphNode nextNode = nodes.get(i + 1);
+//                            currNode.addNextNode(nextNode, (int) calcDistNodes(currNode.getLAT(), currNode.getLON(), nextNode.getLAT(), nextNode.getLON()));
+//                        }
+//                        if (!graph.getNodes().contains(currNode))
+//                            graph.addNode(currNode);
+//
+//                    }
+//                }
+//            }
+        DijkstraAlgorithm.calcShortWay(graph, edge, nodeStart, nodeEnd);
 
-                    if (wayKeyValue.getValue().toString().contains(String.valueOf(currNode.getID()))) {
-                        graph.addNode(currNode);
-                        if (i != nodes.size() - 1) {
-                            GraphNode nextNode = nodes.get(i + 1);
-                            currNode.addNextNode(nextNode, (int) calcDistNodes(currNode.getLAT(), currNode.getLON(), nextNode.getLAT(), nextNode.getLON()));
-                        }
-                    }
-                }
-            }
-        graph = DijkstraAlgorithm.calcShortWay(graph, nodeStart, nodeEnd);
     }
 
     private void analyzeXML(Document doc) {
@@ -108,8 +114,10 @@ public class NewMain {
     }
     private void buildNode(Document doc) {
         NodeList docChildren = doc.getDocumentElement().getChildNodes();
+        Set findCrossNode = new HashSet();
         for (int j = 0; j < docChildren.getLength(); j++) {
             Node docChild = docChildren.item(j);
+            boolean isCross = false;
             List<Long> nodesList = new ArrayList<>();
 
             if (docChild.getNodeType() != Node.ELEMENT_NODE) continue;
@@ -121,8 +129,10 @@ public class NewMain {
                 double lat = Double.parseDouble(attributes.getNamedItem("lat").getNodeValue());
                 double lon = Double.parseDouble(attributes.getNamedItem("lon").getNodeValue());
 
+                if (!findCrossNode.add(nodeId)) isCross = true;
+
                 if (neededNodes.contains(nodeId)) {
-                    nodes.add(new GraphNode(nodeId, lat, lon));
+                    nodes.add(new GraphNode(nodeId, lat, lon, isCross));
 //                    System.out.println(nodeId + " " + lat + " " + lon);
                 }
 
@@ -141,7 +151,8 @@ public class NewMain {
                     long ref = Long.parseLong(attrib.getNamedItem("ref").getNodeValue());
                     if (neededWays.contains(wayId) && neededNodes.contains(ref)) {
                         nodesList.add(ref);
-                        waysList.put(wayId, nodesList);
+//                        waysList.put(wayId, nodesList);
+                        ways.add(new GraphWay(wayId, nodesList));
                     }
                 }
             }
@@ -151,10 +162,10 @@ public class NewMain {
 
     private double calcDistNodes(double lat1, double lon1, double lat2, double lon2) {
         final double radEarth = 6371.009;
-        double dLAT = Math.abs(lat2 - lat1);
-        double dLON = Math.abs(lon2 - lon1);
+        double dLAT = Math.abs(lat2 - lat1) * (Math.PI/180);
+        double dLON = Math.abs(lon2 - lon1) * (Math.PI/180);
         double dist = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(dLAT/2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dLON/2),2)));
-        dist = radEarth * dist;
+        dist = radEarth * dist * 1000;
         return dist;
     }
 

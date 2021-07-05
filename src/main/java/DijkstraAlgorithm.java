@@ -4,9 +4,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class DijkstraAlgorithm {
-    public static Graph calcShortWay(Graph graph, GraphNode source, GraphNode end) {
+    public static Graph calcShortWay(Graph graph, Edge edge, GraphNode source, GraphNode end) {
 
-        source.setDist(0);
+        edge.setDist(0);
 
         Set visitedNodes = new HashSet<>();
         Set unvisitedNodes = new HashSet<>();
@@ -20,39 +20,40 @@ public class DijkstraAlgorithm {
                 Integer edgeWeight = relatedPair.getValue();
 
                 if (!visitedNodes.contains(relatedNode)) {
-                    CalcMinDist(relatedNode, edgeWeight, currNode);
+                    CalcMinDist(relatedNode, edgeWeight, currNode, graph);
                     unvisitedNodes.add(relatedNode);
                 }
             }
 
             visitedNodes.add(currNode);
-            if (!currNode.getDist().equals(0)) {
-                System.out.print("] -" + currNode.getDist() + "-> [" + currNode.getLAT() + "," + currNode.getLON());
-            }
-            else System.out.print(currNode.getLAT() + ", " + currNode.getLON());
-            if(currNode.equals(end)) break;
+//            if (!currNode.getDist().equals(0)) {
+//                System.out.print("] -" + currNode.getDist() + "m-> [" + currNode.getLAT() + "," + currNode.getLON());
+//            }
+//            else System.out.print(currNode.getLAT() + ", " + currNode.getLON());
+//            if(currNode.equals(end)) break;
         }
         return graph;
     }
     private static GraphNode getLowDistNode(Set<GraphNode> unvisitedNodes) {
         GraphNode lowDistNode = null;
+        Edge edge = new Edge();
         int lowDist = Integer.MAX_VALUE;
         for(GraphNode node: unvisitedNodes) {
-            int nodeDist = node.getDist();
-            if (nodeDist < lowDist) {
-                lowDist = nodeDist;
+            int edgeDist = edge.getDist();
+            if (edgeDist < lowDist) {
+                lowDist = edgeDist;
                 lowDistNode = node;
             }
         }
         return lowDistNode;
     }
-    private static void CalcMinDist(GraphNode analysisNode, Integer edgeWeight, GraphNode sourceNode) {
+    private static void CalcMinDist(Edge analysisNode, Integer edgeWeight, Edge sourceNode, Graph graph) {
         Integer sourceDist = sourceNode.getDist();
         if(sourceDist + edgeWeight < analysisNode.getDist()) {
             analysisNode.setDist(sourceDist + edgeWeight);
-            LinkedList shortWay = new LinkedList<>(sourceNode.getShortWay());
+            LinkedList shortWay = new LinkedList<>(graph.getShortWay());
             shortWay.add(sourceNode);
-            analysisNode.setShortWay(shortWay);
+            graph.setShortWay(shortWay);
         }
     }
 }
