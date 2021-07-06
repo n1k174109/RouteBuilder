@@ -18,7 +18,6 @@ public class NewMain {
     private Set<Long> neededNodes = new HashSet<>();
     private Set<Long> neededWays = new HashSet<>();
     private ArrayList<String> Road = new ArrayList<>();
-    private Map<Long, List<Long>> waysList = new HashMap<>();
     private List<GraphWay> ways = new ArrayList<>();
 
     private int nodeElem = 0;
@@ -35,7 +34,6 @@ public class NewMain {
         dbf = DocumentBuilderFactory.newInstance();
         db = dbf.newDocumentBuilder();
         doc = db.parse(new File("src/res/nizhnekamsk.xml"));
-        Edge edge = new Edge();
         initializeRoad(Road);
         analyzeXML(doc);
         buildNode(doc);
@@ -73,7 +71,9 @@ public class NewMain {
 //                    }
 //                }
 //            }
-        DijkstraAlgorithm.calcShortWay(graph, edge, nodeStart, nodeEnd);
+        Edge edge = new Edge();
+        edge.sliceWays(nodes, ways);
+        DijkstraAlgorithm.calcShortWay(edge, graph, nodeStart, nodeEnd);
 
     }
 
@@ -158,15 +158,6 @@ public class NewMain {
             }
         }
 //        System.out.println(waysList);
-    }
-
-    private double calcDistNodes(double lat1, double lon1, double lat2, double lon2) {
-        final double radEarth = 6371.009;
-        double dLAT = Math.abs(lat2 - lat1) * (Math.PI/180);
-        double dLON = Math.abs(lon2 - lon1) * (Math.PI/180);
-        double dist = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(dLAT/2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dLON/2),2)));
-        dist = radEarth * dist * 1000;
-        return dist;
     }
 
     private static void initializeRoad(ArrayList<String> Road) {

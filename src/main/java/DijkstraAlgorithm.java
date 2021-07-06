@@ -1,12 +1,9 @@
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DijkstraAlgorithm {
-    public static Graph calcShortWay(Graph graph, Edge edge, GraphNode source, GraphNode end) {
-
-        edge.setDist(0);
+    public static Graph calcShortWay(Edge edge, Graph graph, GraphNode source, GraphNode end) {
+        edge.sliceWays();
+        //        edge.setDist(0);
 
         Set visitedNodes = new HashSet<>();
         Set unvisitedNodes = new HashSet<>();
@@ -15,7 +12,7 @@ public class DijkstraAlgorithm {
         while (unvisitedNodes.size() != 0) {
             GraphNode currNode = getLowDistNode(unvisitedNodes);
             unvisitedNodes.remove(currNode);
-            for (Map.Entry<GraphNode, Integer> relatedPair: currNode.getRelatedNodes().entrySet()) {
+            for (Map.Entry<GraphNode, Integer> relatedPair: currNode.getNextNodes().entrySet()) {
                 GraphNode relatedNode = relatedPair.getKey();
                 Integer edgeWeight = relatedPair.getValue();
 
@@ -36,10 +33,9 @@ public class DijkstraAlgorithm {
     }
     private static GraphNode getLowDistNode(Set<GraphNode> unvisitedNodes) {
         GraphNode lowDistNode = null;
-        Edge edge = new Edge();
         int lowDist = Integer.MAX_VALUE;
         for(GraphNode node: unvisitedNodes) {
-            int edgeDist = edge.getDist();
+            int edgeDist = node.getDist();
             if (edgeDist < lowDist) {
                 lowDist = edgeDist;
                 lowDistNode = node;
