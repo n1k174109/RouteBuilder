@@ -19,6 +19,8 @@ public class NewMain {
     private Set<Long> neededWays = new HashSet<>();
     private ArrayList<String> Road = new ArrayList<>();
     private List<GraphWay> ways = new ArrayList<>();
+    private List<Edge> edges = new ArrayList<>();
+    private Set<GraphNode> mainNodes = new HashSet<>();
 
     private int nodeElem = 0;
 
@@ -36,7 +38,7 @@ public class NewMain {
         doc = db.parse(new File("src/res/nizhnekamsk.xml"));
         initializeRoad(Road);
         analyzeXML(doc);
-        buildNode(doc);
+        buildNodesWays(doc);
         Graph graph = new Graph();
         read = new BufferedReader(new InputStreamReader(System.in));
         double lat, lon, lat2, lon2;
@@ -71,9 +73,27 @@ public class NewMain {
 //                    }
 //                }
 //            }
+
         Edge edge = new Edge();
-        edge.sliceWays(nodes, ways);
-        DijkstraAlgorithm.calcShortWay(edge, graph, nodeStart, nodeEnd);
+        GraphWay graphway = new GraphWay();
+//        List<Long> mNodes = new ArrayList<>();
+//        mNodes.addAll(mainNodes);
+        for (int i = 0; i < nodes.size(); i++) {
+
+//            for (int j = 0; j < mNodes.size(); j++) {
+                if (mainNodes.contains(nodes.get(i).getID())) {
+
+                }
+
+        }
+        graphway.sliceWays(mainNodes, ways, graph, edges);
+        for (GraphNode node: nodes) {
+            graph.addNode(node);
+        }
+
+
+        DijkstraAlgorithm da = new DijkstraAlgorithm();
+        da.calcShortWay(edge, graph, nodeStart, nodeEnd);
 
     }
 
@@ -112,12 +132,12 @@ public class NewMain {
         }
 //        System.out.println(neededWays);
     }
-    private void buildNode(Document doc) {
+    private void buildNodesWays(Document doc) {
         NodeList docChildren = doc.getDocumentElement().getChildNodes();
-        Set findCrossNode = new HashSet();
-        for (int j = 0; j < docChildren.getLength(); j++) {
+        Set<Long> findCrossNode = new HashSet();
+        List<Long> refList = new ArrayList<>();
+        for (int j = docChildren.getLength(); j > 0; j--) {
             Node docChild = docChildren.item(j);
-            boolean isCross = false;
             List<Long> nodesList = new ArrayList<>();
 
             if (docChild.getNodeType() != Node.ELEMENT_NODE) continue;
@@ -129,16 +149,17 @@ public class NewMain {
                 double lat = Double.parseDouble(attributes.getNamedItem("lat").getNodeValue());
                 double lon = Double.parseDouble(attributes.getNamedItem("lon").getNodeValue());
 
-                if (!findCrossNode.add(nodeId)) isCross = true;
 
                 if (neededNodes.contains(nodeId)) {
-                    nodes.add(new GraphNode(nodeId, lat, lon, isCross));
+                    nodes.add(new GraphNode(nodeId, lat, lon));
+                    if (!findCrossNode.add(refList.get(j)))
+                        mainNodes.add(new GraphNode(refList.get(j), lat, lon));
 //                    System.out.println(nodeId + " " + lat + " " + lon);
                 }
 
             } else if (docChild.getNodeName().equals("way")) {
                 NamedNodeMap attributes = docChild.getAttributes();
-
+                Set<Long> findMainNodes = new HashSet<>();
                 NodeList nodeChildren = docChild.getChildNodes();
                 for (int i = 0; i < nodeChildren.getLength(); i++) {
                     Node nodeChild = nodeChildren.item(i);
@@ -151,7 +172,8 @@ public class NewMain {
                     long ref = Long.parseLong(attrib.getNamedItem("ref").getNodeValue());
                     if (neededWays.contains(wayId) && neededNodes.contains(ref)) {
                         nodesList.add(ref);
-//                        waysList.put(wayId, nodesList);
+//                        if (!findCrossNode.add(ref))
+//                            mainNodes.add((ref));
                         ways.add(new GraphWay(wayId, nodesList));
                     }
                 }

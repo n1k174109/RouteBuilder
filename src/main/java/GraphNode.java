@@ -1,19 +1,16 @@
 public class GraphNode {
     private long id;
     private double lat, lon;
-    private boolean isCross;
 
-    public GraphNode(long id, double lat, double lon, boolean isCross) {
+    public GraphNode(long id, double lat, double lon) {
         this.id = id;
         this.lat = lat;
         this.lon = lon;
-        this.isCross = isCross;
     }
 
     public long getID()    { return id;  }
     public double getLAT() { return lat; }
     public double getLON() { return lon; }
-    public boolean getIsCross() { return isCross; }
 
 //    public void addNextNode(GraphNode next, int dist) {
 //        relatedNodes.put(next, dist);
