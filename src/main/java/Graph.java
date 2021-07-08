@@ -4,7 +4,7 @@ public class Graph {
     private Set<GraphNode> nodes = new HashSet<>();
     private Set<Edge> ways = new HashSet<>();
     private List<GraphNode> shortWay = new ArrayList<>();
-    private Map<GraphNode, List<Edge>> relation;
+    private Map<GraphNode, List<Edge>> relation = new HashMap<>();
     public void addNode(GraphNode nodeA) {
         nodes.add(nodeA);
     }
@@ -34,8 +34,6 @@ public class Graph {
     public void setRelation(Map<GraphNode, List<Edge>> edgesList) {
         this.relation = edgesList;
     }
-//
-//    public void initializeMapRelation() {
-//        for (Map.Entry )
-//    }
+
+
 }

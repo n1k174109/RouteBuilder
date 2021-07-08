@@ -20,9 +20,13 @@ public class NewMain {
     private ArrayList<String> Road = new ArrayList<>();
     private List<GraphWay> ways = new ArrayList<>();
     private List<Edge> edges = new ArrayList<>();
-    private Set<GraphNode> mainNodes = new HashSet<>();
+    private List<GraphNode> mainNodes = new ArrayList<>();
 
     private int nodeElem = 0;
+
+    public void setEdges(List<Edge> edges) {
+        this.edges = edges;
+    }
 
     public NewMain() {}
     public static void main(String[] arg) throws ParserConfigurationException, IOException, SAXException {
@@ -51,7 +55,7 @@ public class NewMain {
         for (int i = 0; i < nodes.size(); i++) {
             if (nodes.get(i).getLAT() == lat && nodes.get(i).getLON() == lon) {
                 nodeStart = nodes.get(i);
-            }
+                }
             if (nodes.get(i).getLAT() == lat2 && nodes.get(i).getLON() == lon2) {
                 nodeEnd = nodes.get(i);
             }
@@ -74,26 +78,17 @@ public class NewMain {
 //                }
 //            }
 
-        Edge edge = new Edge();
+        Edge edgeClass = new Edge();
         GraphWay graphway = new GraphWay();
-//        List<Long> mNodes = new ArrayList<>();
-//        mNodes.addAll(mainNodes);
-        for (int i = 0; i < nodes.size(); i++) {
-
-//            for (int j = 0; j < mNodes.size(); j++) {
-                if (mainNodes.contains(nodes.get(i).getID())) {
-
-                }
-
-        }
-        graphway.sliceWays(mainNodes, ways, graph, edges);
+        setEdges(graphway.sliceWays(mainNodes, ways, edges));
+        edgeClass.addRelation(edges, mainNodes, graph);
         for (GraphNode node: nodes) {
             graph.addNode(node);
         }
 
 
         DijkstraAlgorithm da = new DijkstraAlgorithm();
-        da.calcShortWay(edge, graph, nodeStart, nodeEnd);
+        da.calcShortWay(edgeClass, graph, nodeStart, nodeEnd);
 
     }
 
@@ -136,7 +131,7 @@ public class NewMain {
         NodeList docChildren = doc.getDocumentElement().getChildNodes();
         Set<Long> findCrossNode = new HashSet();
         List<Long> refList = new ArrayList<>();
-        for (int j = docChildren.getLength(); j > 0; j--) {
+        for (int j = docChildren.getLength() - 1; j >= 0; j--) {
             Node docChild = docChildren.item(j);
             List<Long> nodesList = new ArrayList<>();
 
@@ -152,14 +147,15 @@ public class NewMain {
 
                 if (neededNodes.contains(nodeId)) {
                     nodes.add(new GraphNode(nodeId, lat, lon));
-                    if (!findCrossNode.add(refList.get(j)))
-                        mainNodes.add(new GraphNode(refList.get(j), lat, lon));
 //                    System.out.println(nodeId + " " + lat + " " + lon);
                 }
-
-            } else if (docChild.getNodeName().equals("way")) {
+                if (refList.contains(nodeId)) {
+                    mainNodes.add(new GraphNode(nodeId, lat, lon));
+                }
+            }
+            else if (docChild.getNodeName().equals("way")) {
                 NamedNodeMap attributes = docChild.getAttributes();
-                Set<Long> findMainNodes = new HashSet<>();
+                Set<GraphNode> findMainNodes = new HashSet<>();
                 NodeList nodeChildren = docChild.getChildNodes();
                 for (int i = 0; i < nodeChildren.getLength(); i++) {
                     Node nodeChild = nodeChildren.item(i);
@@ -172,9 +168,9 @@ public class NewMain {
                     long ref = Long.parseLong(attrib.getNamedItem("ref").getNodeValue());
                     if (neededWays.contains(wayId) && neededNodes.contains(ref)) {
                         nodesList.add(ref);
-//                        if (!findCrossNode.add(ref))
-//                            mainNodes.add((ref));
                         ways.add(new GraphWay(wayId, nodesList));
+                        if (!findCrossNode.add(ref))
+                            refList.add((ref));
                     }
                 }
             }
