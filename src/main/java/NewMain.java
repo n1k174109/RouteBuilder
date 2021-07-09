@@ -79,16 +79,18 @@ public class NewMain {
 //            }
 
         Edge edgeClass = new Edge();
+        DijkstraNew dn = new DijkstraNew();
         GraphWay graphway = new GraphWay();
         setEdges(graphway.sliceWays(mainNodes, ways, edges));
         edgeClass.addRelation(edges, mainNodes, graph);
+        addDistance(nodes, dn);
         for (GraphNode node: nodes) {
             graph.addNode(node);
         }
 
 
-        DijkstraAlgorithm da = new DijkstraAlgorithm();
-        da.calcShortWay(edgeClass, graph, nodeStart, nodeEnd);
+
+        dn.calcShortWay(nodeStart, nodeEnd, graph);
 
     }
 
@@ -176,6 +178,28 @@ public class NewMain {
             }
         }
 //        System.out.println(waysList);
+    }
+
+    private void addDistance(List<GraphNode> nodes, DijkstraNew dn) {
+        for (int i = 0; i < nodes.size(); i++) {
+            double distEdge = 0;
+            GraphNode currNode = nodes.get(i);
+            if (i < nodes.size() - 1) {
+                GraphNode nextNode = nodes.get(i + 1);
+                distEdge += ((int) calcDistNodes(currNode.getLAT(), currNode.getLON(), nextNode.getLAT(), nextNode.getLON()));
+//                distEdge += edge.getDist();
+            }
+            dn.addValueNode(currNode, (int) distEdge);
+        }
+    }
+
+    private double calcDistNodes(double lat1, double lon1, double lat2, double lon2) {
+        final double radEarth = 6371.009;
+        double dLAT = Math.abs(lat2 - lat1) * (Math.PI/180);
+        double dLON = Math.abs(lon2 - lon1) * (Math.PI/180);
+        double dist = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(dLAT/2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dLON/2),2)));
+        dist = radEarth * dist * 1000;
+        return dist;
     }
 
     private static void initializeRoad(ArrayList<String> Road) {

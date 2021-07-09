@@ -3,8 +3,10 @@ import java.util.*;
 public class Graph {
     private Set<GraphNode> nodes = new HashSet<>();
     private Set<Edge> ways = new HashSet<>();
-    private List<GraphNode> shortWay = new ArrayList<>();
+//    private List<GraphNode> shortWay = new ArrayList<>();
     private Map<GraphNode, List<Edge>> relation = new HashMap<>();
+    private Map<GraphNode, List<GraphNode>> shortWay = new HashMap<>();
+
     public void addNode(GraphNode nodeA) {
         nodes.add(nodeA);
     }
@@ -15,13 +17,19 @@ public class Graph {
     public void setNodes(Set<GraphNode> nodes) { this.nodes = nodes; }
     public void setWays(Set<Edge> ways)        { this.ways = ways; }
 
+    public void setShortWay(GraphNode node, List<GraphNode> path) {
+        shortWay.put(node, path);
+    }
 
-    public List<GraphNode> getShortWay() {
+    public Map<GraphNode, List<GraphNode>> getShortWay() {
         return shortWay;
     }
-    public void setShortWay(List<GraphNode> shortWay) {
-        this.shortWay = shortWay;
-    }
+    //    public List<GraphNode> getShortWay() {
+//        return shortWay;
+//    }
+//    public void setShortWay(List<GraphNode> shortWay) {
+//        this.shortWay = shortWay;
+//    }
 
     public void addRelation(GraphNode node, List<Edge> edgesList) {
         relation.put(node, edgesList);
