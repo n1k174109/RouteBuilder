@@ -1,17 +1,22 @@
 public class GraphNode {
-    private long id;
-    private double lat, lon;
+    private final long id;
+    private final double lat;
+    private final double lon;
+    private boolean isMain = false;
 
     public GraphNode(long id, double lat, double lon) {
         this.id = id;
         this.lat = lat;
         this.lon = lon;
     }
+    public void setMain(boolean main) {
+        isMain = main;
+    }
 
     public long getID()    { return id;  }
     public double getLAT() { return lat; }
     public double getLON() { return lon; }
-
+    public boolean isMain() { return isMain; }
 //    public void addNextNode(GraphNode next, int dist) {
 //        relatedNodes.put(next, dist);
 //    }

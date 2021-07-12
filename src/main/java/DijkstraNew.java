@@ -3,7 +3,8 @@ import com.sun.source.doctree.SeeTree;
 import java.util.*;
 
 public class DijkstraNew {
-    private double distNode;
+//    private double distNode;
+    private Map<GraphNode, List<GraphNode>> shortWay = new HashMap<>();
     private Map<GraphNode, Integer> valueNodes = new HashMap<>();
 
     public Map<GraphNode, Integer> getValueNodes() {
@@ -13,16 +14,20 @@ public class DijkstraNew {
     public void addValueNode(GraphNode node, Integer value) {
         valueNodes.put(node, value);
     }
-    public double getDistNode() {
-        return distNode;
+
+    public Map<GraphNode, List<GraphNode>> getShortWay() {
+        return shortWay;
     }
 
-    public void setDistNode(double distNode) {
-        this.distNode = distNode;
+    public void setShortWay(GraphNode node, List<GraphNode> path) {
+        shortWay.put(node, path);
     }
+
     public void calcShortWay(GraphNode startNode, GraphNode endNode, Graph graph) {
+        addDistance(graph);
         Set<GraphNode> visited = new HashSet<>();
         Set<GraphNode> unvisited = new HashSet<>();
+
         unvisited.add(startNode);
 
         while (!unvisited.isEmpty()) {
@@ -47,9 +52,9 @@ public class DijkstraNew {
                         }
                             if (weightEdge + currNodeDist < nextNodeDist) {
                                 nextNodeDist = weightEdge + currNodeDist;
-                                List shortestPath = new ArrayList<>(graph.getShortWay().values());
+                                List shortestPath = new ArrayList<>(getShortWay().values());
                                 shortestPath.add(currNode);
-                                graph.setShortWay(nextNode, shortestPath);
+                                setShortWay(nextNode, shortestPath);
                             }
 
 //                        calcMinDist(weightEdge, currNode, nextNode);
@@ -73,5 +78,27 @@ public class DijkstraNew {
             }
         }
         return minNode;
+    }
+
+    private void addDistance(Graph graph) {
+        for (int i = 0; i < graph.getNodes().size(); i++) {
+            double distEdge = 0;
+            GraphNode currNode = graph.getNodes().get(i);
+            if (i < graph.getNodes().size() - 1) {
+                GraphNode nextNode = graph.getNodes().get(i + 1);
+                distEdge += ((int) calcDistNodes(currNode.getLAT(), currNode.getLON(), nextNode.getLAT(), nextNode.getLON()));
+//                distEdge += edge.getDist();
+            }
+            addValueNode(currNode, (int) distEdge);
+        }
+    }
+
+    private double calcDistNodes(double lat1, double lon1, double lat2, double lon2) {
+        final double radEarth = 6371.009;
+        double dLAT = Math.abs(lat2 - lat1) * (Math.PI/180);
+        double dLON = Math.abs(lon2 - lon1) * (Math.PI/180);
+        double dist = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(dLAT/2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dLON/2),2)));
+        dist = radEarth * dist * 1000;
+        return dist;
     }
 }
