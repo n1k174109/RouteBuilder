@@ -1,11 +1,13 @@
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class GraphWay {
     private long id;
-    private List<GraphNode> nodesLinks;
+    private List<Long> nodesLinks;
 
-    public GraphWay(long id, List<GraphNode> nodesLinks) {
+    public GraphWay(long id, List<Long> nodesLinks) {
         this.id = id;
         this.nodesLinks = nodesLinks;
     }
@@ -14,8 +16,20 @@ public class GraphWay {
     public long getId()  {
         return id;
     }
-    public List<GraphNode> getNodesLinks() {
+    public List<Long> getNodesLinks() {
         return nodesLinks;
+    }
+
+    public List<Edge> getEdges(Map<Long, GraphNode> nodes) {
+        int startInd = 0;
+        List<Edge> edges = new ArrayList<>();
+        for (int i = 1; i < nodesLinks.size(); i++) {
+            if (nodes.get(nodesLinks.get(i)).isMain()) {
+                edges.add(new Edge(id * 10 + edges.size(), nodesLinks.subList(startInd, i + 1)));
+                startInd = i;
+            }
+        }
+        return edges;
     }
 
 //    public List<Edge> sliceWays(List<GraphNode> nodes, List<GraphWay> graphWay, List<Edge> edges) {

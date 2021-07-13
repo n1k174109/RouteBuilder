@@ -10,51 +10,56 @@ public class Graph {
     public Map<Long, GraphNode> getNodes() {
         return nodes;
     }
-
     public void setNodes(Map<Long, GraphNode> nodes) {
         this.nodes = nodes;
     }
-
     public void addNode(Long id, GraphNode node) {
         nodes.put(id, node);
     }
+
     public List<GraphWay> getWays() {
         return ways;
     }
-
     public void setWays(List<GraphWay> ways) {
         this.ways = ways;
     }
     public void addWay(GraphWay way) {
         ways.add(way);
     }
-    public void addMainNode() {
-        int usingCont = 0;
 
-        for (GraphWay way: ways) {
-            List<GraphNode> nodes = new ArrayList<>(way.getNodesLinks());
-            for (GraphNode node: nodes) {
-                usingNodes.put(node.getID(), usingCont++);
+    public void processNodes() {
+
+        for (GraphWay way : ways) {
+
+            for (Long node : way.getNodesLinks()) {
+                int usingCount = usingNodes.getOrDefault(node, 0);
+                usingCount++;
+                usingNodes.put(node, usingCount);
+
+                if (!usingNodes.containsKey(node))
+                    usingNodes.put(node, 1);
+                else
+                    usingNodes.compute(node, (k, v) -> v++);
             }
+
         }
-        for (Map.Entry<Long, GraphNode> nodesEntry: nodes.entrySet()) {
-            if (usingNodes.get(nodesEntry.getKey()) > 1) {
-                nodesEntry.getValue().setMain(true);
-            }
+
+        for (GraphNode node: nodes.values()) {
+            if (usingNodes.get(node.getID()) > 1)
+                node.setMain(true);
         }
     }
-//    public void getEdges() {
-//        for (GraphWay way: ways) {
-//            if (way.getNodesLinks().get(i).isMain()) {
-//                edges.add(new Edge())
-//            }
-//        }
+
+    public void buildEdges() {
+        for (GraphWay way : ways) {
+            edges.addAll(way.getEdges(nodes));
+        }
+    }
+
+//
+//    public void addRelation(GraphNode node, List<Edge> edgesList) {
+//        relation.put(node, edgesList);
 //    }
-
-
-    public void addRelation(GraphNode node, List<Edge> edgesList) {
-        relation.put(node, edgesList);
-    }
 
     public Map<GraphNode, List<Edge>> getRelation() {
         return relation;
@@ -65,16 +70,32 @@ public class Graph {
     }
 
 
-    public void addRelation() {
-        for (Map.Entry<Long, GraphNode> nodesMap: nodes.entrySet()) {
-            Long currNode = nodesMap.getKey();
-            List<Edge> neededEdges = new ArrayList<>();
-            for (int j = 0; j < edges.size(); j++) {
-                if (edges.get(j).getNodesList().contains(currNode)) {
-                    neededEdges.add(edges.get(j));
-                }
-            }
-            addRelation(nodesMap.getValue(), neededEdges);
+    public void createRelations() {
+        for (Edge edge : edges) {
+            edge.setFirstNode(edge.getNodesList().get(0));
+            edge.setLastNode(edge.getNodesList().get(edge.getNodesList().size()));
+            relation.keySet().add(nodes.get(edge.getFirstNode()));
+            relation.get(nodes.get(edge.getFirstNode())).add(edge);
+            relation.keySet().add(nodes.get(edge.getLastNode()));
+            relation.get(nodes.get(edge.getLastNode())).add(edge);
         }
+//        for (Edge edge : edges) {
+//            edge.setFirstNode(edge.getNodesList().get(0));
+//            edge.setLastNode(edge.getNodesList().get(edge.getNodesList().size()));
+//
+////            List<Edge> neededEdges = new ArrayList<>();
+//            for (int j = 0; j < edges.size(); j++) {
+//                if (edges.get(j).getNodesList().contains(currNode)) {
+//                    neededEdges.add(edges.get(j));
+//                }
+//            }
+//            addRelation(nodesMap.getValue(), neededEdges);
+//        }
+    }
+
+    public void prepareGraph() {
+        processNodes();
+        buildEdges();
+        createRelations();
     }
 }

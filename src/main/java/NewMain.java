@@ -37,6 +37,7 @@ public class NewMain {
         initializeRoad(Road);
         analyzeXML(doc);
         buildNodesWays(doc, graph);
+        graph.prepareGraph();
 
         read = new BufferedReader(new InputStreamReader(System.in));
         double lat, lon, lat2, lon2;
@@ -46,16 +47,17 @@ public class NewMain {
         lon2 = Double.parseDouble(read.readLine());
         GraphNode nodeStart = null;
         GraphNode nodeEnd = null;
-        for (int i = 0; i < graph.getNodes().size(); i++) {
-            if (graph.getNodes().get(i).getLAT() == lat && graph.getNodes().get(i).getLON() == lon) {
-                nodeStart = graph.getNodes().get(i);
+        List<GraphNode> nodes = new ArrayList<>(graph.getNodes().values());
+        for (int i = 0; i < nodes.size(); i++) {
+            GraphNode currNode = nodes.get(i);
+            if (currNode.getLAT() == lat && currNode.getLON() == lon) {
+                nodeStart = currNode;
                 }
-            if (graph.getNodes().get(i).getLAT() == lat2 && graph.getNodes().get(i).getLON() == lon2) {
-                nodeEnd = graph.getNodes().get(i);
+            if (currNode.getLAT() == lat2 && currNode.getLON() == lon2) {
+                nodeEnd = currNode;
             }
         }
 
-        graph.addMainNode();
         DijkstraNew dn = new DijkstraNew();
 
         dn.calcShortWay(nodeStart, nodeEnd, graph);
@@ -101,7 +103,7 @@ public class NewMain {
         NodeList docChildren = doc.getDocumentElement().getChildNodes();
         for (int j = 0; j < docChildren.getLength(); j++) {
             Node docChild = docChildren.item(j);
-            List<GraphNode> nodesList = new ArrayList<>();
+            List<Long> nodesList = new ArrayList<>();
 
             if (docChild.getNodeType() != Node.ELEMENT_NODE) continue;
 
@@ -132,7 +134,7 @@ public class NewMain {
 
                     long ref = Long.parseLong(attrib.getNamedItem("ref").getNodeValue());
                     if (neededWays.contains(wayId)) {
-                        nodesList.add(graph.getNodes().get(ref));
+                        nodesList.add(ref);
                     }
                 }
 
