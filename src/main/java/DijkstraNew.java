@@ -1,5 +1,3 @@
-import com.sun.source.doctree.SeeTree;
-
 import java.util.*;
 
 public class DijkstraNew {
@@ -24,7 +22,6 @@ public class DijkstraNew {
     }
 
     public void calcShortWay(GraphNode startNode, GraphNode endNode, Graph graph) {
-        addDistance(graph);
         Set<GraphNode> visited = new HashSet<>();
         Set<GraphNode> unvisited = new HashSet<>();
 
@@ -71,7 +68,7 @@ public class DijkstraNew {
         GraphNode minNode = null;
         int minDist = Integer.MAX_VALUE/2;
         for (GraphNode node: unvisited) {
-            for (Map.Entry<GraphNode, Integer> valueNodes : getValueNodes().entrySet()) {
+            for (Map.Entry<GraphNode, Integer> valueNodes : valueNodes.entrySet()) {
                 if (valueNodes.getKey().equals(node) && valueNodes.getValue() < minDist)
                     minNode = node;
                     minDist = valueNodes.getValue();
@@ -80,19 +77,19 @@ public class DijkstraNew {
         return minNode;
     }
 
-    private void addDistance(Graph graph) {
-        for (int i = 0; i < graph.getNodes().size(); i++) {
+    public void addDistance(Collection<GraphNode> nodesFromMap) {
+        List<GraphNode> nodes = new ArrayList<>(nodesFromMap);
+//        Map<GraphNode, Integer> valueNodes = new HashMap<>();
+        for (int i = 0; i < nodes.size() - 1; i++) {
             double distEdge = 0;
-            GraphNode currNode = graph.getNodes().get(i);
-            if (i < graph.getNodes().size() - 1) {
-                GraphNode nextNode = graph.getNodes().get(i + 1);
-                distEdge += ((int) calcDistNodes(currNode.getLAT(), currNode.getLON(), nextNode.getLAT(), nextNode.getLON()));
+            GraphNode currNode = nodes.get(i);
+            GraphNode nextNode = nodes.get(i + 1);
+            distEdge += ((int) calcDistNodes(currNode.getLAT(), currNode.getLON(), nextNode.getLAT(), nextNode.getLON()));
 //                distEdge += edge.getDist();
-            }
-            addValueNode(currNode, (int) distEdge);
+            valueNodes.put(currNode, (int) distEdge);
         }
-    }
 
+    }
     private double calcDistNodes(double lat1, double lon1, double lat2, double lon2) {
         final double radEarth = 6371.009;
         double dLAT = Math.abs(lat2 - lat1) * (Math.PI/180);

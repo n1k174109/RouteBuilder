@@ -45,22 +45,12 @@ public class NewMain {
         lon = Double.parseDouble(read.readLine());
         lat2 = Double.parseDouble(read.readLine());
         lon2 = Double.parseDouble(read.readLine());
-        GraphNode nodeStart = null;
-        GraphNode nodeEnd = null;
-        List<GraphNode> nodes = new ArrayList<>(graph.getNodes().values());
-        for (int i = 0; i < nodes.size(); i++) {
-            GraphNode currNode = nodes.get(i);
-            if (currNode.getLAT() == lat && currNode.getLON() == lon) {
-                nodeStart = currNode;
-                }
-            if (currNode.getLAT() == lat2 && currNode.getLON() == lon2) {
-                nodeEnd = currNode;
-            }
-        }
+
+        GraphNode startNode = graph.nearestValueNode(lat, lon);
+        GraphNode endNode = graph.nearestValueNode(lat2, lon2);
 
         DijkstraNew dn = new DijkstraNew();
-
-        dn.calcShortWay(nodeStart, nodeEnd, graph);
+        dn.calcShortWay(startNode, endNode, graph);
 
     }
 
