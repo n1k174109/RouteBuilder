@@ -35,7 +35,7 @@ public class DijkstraNew {
                 Integer weightEdge = 0;
                 List<Edge> edges = new ArrayList<>(mapRelation.getValue());
                 for (int i = 0; i < edges.size(); i++) {
-                    if (edges.get(i).getNodesList().contains(currNode.getID()))
+                    if (edges.get(i).getNodesList().contains(currNode.getId()))
                         weightEdge = edges.get(i).getDist();
 
                     if (!visited.contains(nextNode)) {
@@ -84,13 +84,13 @@ public class DijkstraNew {
             double distEdge = 0;
             GraphNode currNode = nodes.get(i);
             GraphNode nextNode = nodes.get(i + 1);
-            distEdge += ((int) calcDistNodes(currNode.getLAT(), currNode.getLON(), nextNode.getLAT(), nextNode.getLON()));
+            distEdge += ((int) calcDistNodes(currNode.getLat(), currNode.getLon(), nextNode.getLat(), nextNode.getLon()));
 //                distEdge += edge.getDist();
             valueNodes.put(currNode, (int) distEdge);
         }
 
     }
-    private double calcDistNodes(double lat1, double lon1, double lat2, double lon2) {
+    public double calcDistNodes(double lat1, double lon1, double lat2, double lon2) {
         final double radEarth = 6371.009;
         double dLAT = Math.abs(lat2 - lat1) * (Math.PI/180);
         double dLON = Math.abs(lon2 - lon1) * (Math.PI/180);

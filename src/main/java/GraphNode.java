@@ -13,9 +13,9 @@ public class GraphNode {
         this.main = main;
     }
 
-    public long getID()    { return id;  }
-    public double getLAT() { return lat; }
-    public double getLON() { return lon; }
+    public long getId()    { return id;  }
+    public double getLat() { return lat; }
+    public double getLon() { return lon; }
     public boolean isMain() { return main; }
 
 

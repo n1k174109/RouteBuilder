@@ -2,14 +2,12 @@ import java.util.*;
 
 public class Graph {
     private Map<Long, GraphNode> nodes = new HashMap<>();
-    List<GraphNode> mainNodes = new ArrayList<>();
+    private Map<Long, GraphNode> mainNodes = new HashMap<>();
     private Map<Long, Integer> usingNodes = new HashMap<>();
     private List<GraphWay> ways = new ArrayList<>();
     private List<Edge> edges = new ArrayList<>();
     private Map<GraphNode, List<Edge>> relation = new HashMap<>();
-    private GraphNode startNode;
-    private GraphNode endNode;
-    DijkstraNew dn = new DijkstraNew();
+    private DijkstraNew dn = new DijkstraNew();
 
     public Map<Long, GraphNode> getMapNodes() {
         return nodes;
@@ -31,22 +29,6 @@ public class Graph {
         ways.add(way);
     }
 
-    public GraphNode getStartNode() {
-        return startNode;
-    }
-
-    public void setStartNode(GraphNode startNode) {
-        this.startNode = startNode;
-    }
-
-    public GraphNode getEndNode() {
-        return endNode;
-    }
-
-    public void setEndNode(GraphNode endNode) {
-        this.endNode = endNode;
-    }
-
     public void processNodes() {
 
         for (GraphWay way : ways) {
@@ -55,17 +37,18 @@ public class Graph {
                 if (!usingNodes.containsKey(node))
                     usingNodes.put(node, 1);
                 else
-                    usingNodes.compute(node, (k, v) -> v++);
+                    usingNodes.compute(node, (k, v) -> v + 1);
             }
-
+            if (way.getNodesLinks().size() != 0) {
+                nodes.get(way.getNodesLinks().get(0)).setMain(true);
+                nodes.get(way.getNodesLinks().get(way.getNodesLinks().size() - 1)).setMain(true);
+            }
         }
-        Set<GraphNode> mainNodes = new HashSet<>();
         for (GraphNode node: nodes.values()) {
-            if (usingNodes.get(node.getID()) > 1)
+            if (usingNodes.get(node.getId()) > 1)
                 node.setMain(true);
-                mainNodes.add(node);
+                mainNodes.put(node.getId(), node);
         }
-        this.mainNodes.addAll(mainNodes);
     }
 
     public void buildEdges() {
@@ -73,11 +56,6 @@ public class Graph {
             edges.addAll(way.getEdges(nodes));
         }
     }
-
-//
-//    public void addRelation(GraphNode node, List<Edge> edgesList) {
-//        relation.put(node, edgesList);
-//    }
 
     public Map<GraphNode, List<Edge>> getRelation() {
         return relation;
@@ -91,7 +69,7 @@ public class Graph {
     public void createRelations() {
         for (Edge edge : edges) {
             edge.setFirstNode(edge.getNodesList().get(0));
-            edge.setLastNode(edge.getNodesList().get(edge.getNodesList().size()));
+            edge.setLastNode(edge.getNodesList().get(edge.getNodesList().size() - 1));
             relation.keySet().add(nodes.get(edge.getFirstNode()));
             relation.get(nodes.get(edge.getFirstNode())).add(edge);
             relation.keySet().add(nodes.get(edge.getLastNode()));
@@ -100,20 +78,24 @@ public class Graph {
     }
 
     public GraphNode nearestValueNode(double lat, double lon) {
-        double currValueLat = Double.MAX_VALUE/2;
-        double currValueLon = Double.MAX_VALUE/2;
+        double minDist = Double.MAX_VALUE;
         GraphNode nearestNode = null;
         for (int i = 0; i < mainNodes.size() - 1; i++) {
             GraphNode currMainNode = mainNodes.get(i);
 
-            if (currMainNode.getLAT() != lat || currMainNode.getLON() != lon) {
-                if (currValueLat > Math.abs(currMainNode.getLAT() - lat)
-                        && currValueLon > Math.abs(currMainNode.getLON() - lon)) {
-                    currValueLat = Math.abs(currMainNode.getLAT() - lat);
-                    currValueLon = Math.abs(currMainNode.getLON() - lon);
-                    nearestNode = currMainNode;
-                }
-            }
+            if (currMainNode.getLat() == lat && currMainNode.getLon() == lon)
+                return currMainNode;
+
+            double dist = dn.calcDistNodes(currMainNode.getLat(), currMainNode.getLon(), lat, lon);
+            if (minDist > dist)
+                minDist = dist;
+                nearestNode = currMainNode;
+//            if (minDeltaLat > Math.abs(currMainNode.getLat() - lat)
+//                    && minDeltaLon > Math.abs(currMainNode.getLon() - lon)) {
+//                minDeltaLat = Math.abs(currMainNode.getLat() - lat);
+//                minDeltaLon = Math.abs(currMainNode.getLon() - lon);
+//                nearestNode = currMainNode;
+//            }
         }
         return nearestNode;
     }
