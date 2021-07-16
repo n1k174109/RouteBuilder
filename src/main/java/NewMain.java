@@ -38,6 +38,7 @@ public class NewMain {
         analyzeXML(doc);
         buildNodesWays(doc, graph);
         graph.prepareGraph();
+        DijkstraNew dn = new DijkstraNew(graph);
 
         read = new BufferedReader(new InputStreamReader(System.in));
         double lat, lon, lat2, lon2;
@@ -46,10 +47,10 @@ public class NewMain {
         lat2 = Double.parseDouble(read.readLine());
         lon2 = Double.parseDouble(read.readLine());
 
-        GraphNode startNode = graph.nearestValueNode(lat, lon);
-        GraphNode endNode = graph.nearestValueNode(lat2, lon2);
+        GraphNode startNode = dn.nearestValueNode(lat, lon);
+        GraphNode endNode = dn.nearestValueNode(lat2, lon2);
 
-        DijkstraNew dn = new DijkstraNew();
+
         dn.calcShortWay(startNode, endNode, graph);
 
     }

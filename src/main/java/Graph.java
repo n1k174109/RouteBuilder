@@ -6,8 +6,7 @@ public class Graph {
     private Map<Long, Integer> usingNodes = new HashMap<>();
     private List<GraphWay> ways = new ArrayList<>();
     private List<Edge> edges = new ArrayList<>();
-    private Map<GraphNode, List<Edge>> relation = new HashMap<>();
-    private DijkstraNew dn = new DijkstraNew();
+    private Map<Long, List<Edge>> relation = new HashMap<>();
 
     public Map<Long, GraphNode> getMapNodes() {
         return nodes;
@@ -45,9 +44,10 @@ public class Graph {
             }
         }
         for (GraphNode node: nodes.values()) {
-            if (usingNodes.get(node.getId()) > 1)
+            if (usingNodes.get(node.getId()) > 1) {
                 node.setMain(true);
                 mainNodes.put(node.getId(), node);
+            }
         }
     }
 
@@ -57,47 +57,26 @@ public class Graph {
         }
     }
 
-    public Map<GraphNode, List<Edge>> getRelation() {
+    public Map<Long, List<Edge>> getRelations() {
         return relation;
     }
 
-    public void setRelation(Map<GraphNode, List<Edge>> edgesList) {
-        this.relation = edgesList;
+    public Map<Long, GraphNode> getMainNodes() {
+        return mainNodes;
     }
-
+    public GraphNode getMainNode(long nodeId) {
+        return mainNodes.get(nodeId);
+    }
 
     public void createRelations() {
         for (Edge edge : edges) {
-            edge.setFirstNode(edge.getNodesList().get(0));
-            edge.setLastNode(edge.getNodesList().get(edge.getNodesList().size() - 1));
-            relation.keySet().add(nodes.get(edge.getFirstNode()));
-            relation.get(nodes.get(edge.getFirstNode())).add(edge);
-            relation.keySet().add(nodes.get(edge.getLastNode()));
-            relation.get(nodes.get(edge.getLastNode())).add(edge);
+            List<Edge> edgeList = relation.getOrDefault(edge.getFirstNode(), new ArrayList<>());
+            edgeList.add(edge);
+            relation.put(edge.getFirstNode(), edgeList);
+            edgeList = relation.getOrDefault(edge.getLastNode(), new ArrayList<>());
+            edgeList.add(edge);
+            relation.put(edge.getLastNode(), edgeList);
         }
-    }
-
-    public GraphNode nearestValueNode(double lat, double lon) {
-        double minDist = Double.MAX_VALUE;
-        GraphNode nearestNode = null;
-        for (int i = 0; i < mainNodes.size() - 1; i++) {
-            GraphNode currMainNode = mainNodes.get(i);
-
-            if (currMainNode.getLat() == lat && currMainNode.getLon() == lon)
-                return currMainNode;
-
-            double dist = dn.calcDistNodes(currMainNode.getLat(), currMainNode.getLon(), lat, lon);
-            if (minDist > dist)
-                minDist = dist;
-                nearestNode = currMainNode;
-//            if (minDeltaLat > Math.abs(currMainNode.getLat() - lat)
-//                    && minDeltaLon > Math.abs(currMainNode.getLon() - lon)) {
-//                minDeltaLat = Math.abs(currMainNode.getLat() - lat);
-//                minDeltaLon = Math.abs(currMainNode.getLon() - lon);
-//                nearestNode = currMainNode;
-//            }
-        }
-        return nearestNode;
     }
 
 
@@ -105,6 +84,5 @@ public class Graph {
         processNodes();
         buildEdges();
         createRelations();
-        dn.addDistance(nodes.values());
     }
 }
