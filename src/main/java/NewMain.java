@@ -17,9 +17,11 @@ public class NewMain {
     private Set<Long> neededNodes = new HashSet<>();
     private Set<Long> neededWays = new HashSet<>();
     private ArrayList<String> Road = new ArrayList<>();
+    private List<Edge> path;
 
 
     private int nodeElem = 0;
+    private Graph graph;
 
     public NewMain() {}
     public static void main(String[] arg) throws ParserConfigurationException, IOException, SAXException {
@@ -30,13 +32,13 @@ public class NewMain {
         DocumentBuilderFactory dbf;
         DocumentBuilder db;
         Document doc;
-        Graph graph = new Graph();
+        graph = new Graph();
         dbf = DocumentBuilderFactory.newInstance();
         db = dbf.newDocumentBuilder();
         doc = db.parse(new File("src/res/nizhnekamsk.xml"));
         initializeRoad(Road);
         analyzeXML(doc);
-        buildNodesWays(doc, graph);
+        buildNodesWays(doc);
         graph.prepareGraph();
         DijkstraNew dn = new DijkstraNew(graph);
 
@@ -50,9 +52,8 @@ public class NewMain {
         GraphNode startNode = dn.nearestValueNode(lat, lon);
         GraphNode endNode = dn.nearestValueNode(lat2, lon2);
 
-
-        dn.calcShortWay(startNode, endNode, graph);
-
+        path = dn.calcShortWay(startNode, endNode);
+        printPath(path, startNode.getId());
     }
 
     private void analyzeXML(Document doc) {
@@ -90,7 +91,7 @@ public class NewMain {
         }
 //        System.out.println(neededWays);
     }
-    private void buildNodesWays(Document doc, Graph graph) {
+    private void buildNodesWays(Document doc) {
         NodeList docChildren = doc.getDocumentElement().getChildNodes();
         for (int j = 0; j < docChildren.getLength(); j++) {
             Node docChild = docChildren.item(j);
@@ -133,6 +134,29 @@ public class NewMain {
             }
         }
 //        System.out.println(waysList);
+    }
+    private void printPath(List<Edge> path, long startNodeId) {
+        System.out.print("LINESTRING(");
+        double dist = 0;
+        long lastNode  = startNodeId;
+        for (int j = 0; j < path.size(); j++) {
+            Edge currEdge = path.get(j);
+            dist += currEdge.getDist();
+            List<Long> nodes = new ArrayList<>(currEdge.getNodesList());
+            if (lastNode != currEdge.getFirstNode())
+                Collections.reverse(nodes);
+
+            if (j == 0) {
+                System.out.print(graph.getMapNodes().get(nodes.get(0)).getLon() + " " + graph.getMapNodes().get(nodes.get(0)).getLat());
+            }
+            for (int i = 1; i < nodes.size(); i++) {
+                System.out.print("," + graph.getMapNodes().get(nodes.get(i)).getLon() + " " + graph.getMapNodes().get(nodes.get(i)).getLat());
+            }
+            lastNode = nodes.get(nodes.size() - 1);
+        }
+        System.out.print(")");
+        System.out.println("\nDistance:" + Math.round(dist));
+        System.out.println("Time:" + Math.round((dist)/60));
     }
 
     private static void initializeRoad(ArrayList<String> Road) {

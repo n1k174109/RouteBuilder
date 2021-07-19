@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GraphWay {
     private long id;
@@ -20,14 +17,16 @@ public class GraphWay {
         return nodesLinks;
     }
 
-    public List<Edge> getEdges(Map<Long, GraphNode> nodes) {
+    public Map<Long, Edge> getEdges(Map<Long, GraphNode> nodes) {
         int startInd = 0;
-        List<Edge> edges = new ArrayList<>();
+        Map<Long, Edge> edges = new HashMap<>();
         for (int i = 1; i < nodesLinks.size(); i++) {
             if (nodes.get(nodesLinks.get(i)).isMain()) {
-                edges.add(new Edge(id * 10 + edges.size(), nodesLinks.subList(startInd, i + 1)));
+                Edge edge = new Edge(id * 10 + edges.size(), nodesLinks.subList(startInd, i + 1));
+                edges.put(edge.getId(), edge);
                 startInd = i;
             }
+
         }
         return edges;
     }

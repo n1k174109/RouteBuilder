@@ -2,11 +2,11 @@ import java.util.*;
 
 public class Graph {
     private Map<Long, GraphNode> nodes = new HashMap<>();
-    private Map<Long, GraphNode> mainNodes = new HashMap<>();
-    private Map<Long, Integer> usingNodes = new HashMap<>();
+    private final Map<Long, GraphNode> mainNodes = new HashMap<>();
+    private final Map<Long, Integer> usingNodes = new HashMap<>();
     private List<GraphWay> ways = new ArrayList<>();
-    private List<Edge> edges = new ArrayList<>();
-    private Map<Long, List<Edge>> relation = new HashMap<>();
+    private final Map<Long, Edge> edges = new HashMap<>();
+    private final Map<Long, List<Edge>> relation = new HashMap<>();
 
     public Map<Long, GraphNode> getMapNodes() {
         return nodes;
@@ -26,6 +26,9 @@ public class Graph {
     }
     public void addWay(GraphWay way) {
         ways.add(way);
+    }
+    public Edge getEdge(long id) {
+        return edges.get(id);
     }
 
     public void processNodes() {
@@ -53,7 +56,7 @@ public class Graph {
 
     public void buildEdges() {
         for (GraphWay way : ways) {
-            edges.addAll(way.getEdges(nodes));
+            edges.putAll(way.getEdges(nodes));
         }
     }
 
@@ -69,7 +72,7 @@ public class Graph {
     }
 
     public void createRelations() {
-        for (Edge edge : edges) {
+        for (Edge edge : edges.values()) {
             List<Edge> edgeList = relation.getOrDefault(edge.getFirstNode(), new ArrayList<>());
             edgeList.add(edge);
             relation.put(edge.getFirstNode(), edgeList);

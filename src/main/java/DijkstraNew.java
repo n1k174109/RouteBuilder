@@ -9,7 +9,7 @@ public class DijkstraNew {
         this.graph = graph;
     }
 
-    public void calcShortWay(GraphNode startNode, GraphNode endNode) {
+    public List<Edge> calcShortWay(GraphNode startNode, GraphNode endNode) {
         double maxWeight = Double.MAX_VALUE;
         PathEntry currEntry = new PathEntry(0, 0, startNode.getId(), null);
         entryPriorityQueue.add(currEntry);
@@ -42,36 +42,24 @@ public class DijkstraNew {
 
             }
         }
+        List<Edge> path = new ArrayList<>();
+        currEntry = nodeId2PathEntry.get(endNode.getId());
+        while (currEntry != null && currEntry.getEdgeId() != 0) {
+            path.add(graph.getEdge(currEntry.getEdgeId()));
+            currEntry = currEntry.getPrevEntry();
+        }
+        Collections.reverse(path);
+        return path;
     }
 
-    private double getWeight(Edge edge) {
-        return edge.getDist();
-    }
-//    private GraphNode getMinNode(Set<GraphNode> unvisited) {
-//        GraphNode minNode = null;
-//        int minDist = Integer.MAX_VALUE/2;
-//        for (GraphNode node: unvisited) {
-//            for (Map.Entry<GraphNode, Integer> valueNodes : node2Weight.entrySet()) {
-//                if (valueNodes.getKey().equals(node) && valueNodes.getValue() < minDist)
-//                    minNode = node;
-//                    minDist = valueNodes.getValue();
-//            }
-//        }
-//        return minNode;
-//    }
-
-        public void addDistance (Collection < GraphNode > nodesFromMap) {
-            List<GraphNode> nodes = new ArrayList<>(nodesFromMap);
-//        Map<GraphNode, Integer> valueNodes = new HashMap<>();
+        private double getWeight(Edge edge) {
+            List<Long> nodes = new ArrayList<>(edge.getNodesList());
             for (int i = 0; i < nodes.size() - 1; i++) {
-                double distEdge = 0;
-                GraphNode currNode = nodes.get(i);
-                GraphNode nextNode = nodes.get(i + 1);
-                distEdge += ((int) calcDistNodes(currNode.getLat(), currNode.getLon(), nextNode.getLat(), nextNode.getLon()));
-//                distEdge += edge.getDist();
-                node2Weight.put(currNode, (int) distEdge);
+                GraphNode currNode = graph.getMapNodes().get(nodes.get(i));
+                GraphNode nextNode = graph.getMapNodes().get(nodes.get(i + 1));
+                edge.setDist(edge.getDist() + calcDistNodes(currNode.getLat(), currNode.getLon(), nextNode.getLat(), nextNode.getLon()));
             }
-
+            return edge.getDist();
         }
 
         public GraphNode nearestValueNode(double lat, double lon) {
@@ -83,9 +71,10 @@ public class DijkstraNew {
                     return currMainNode;
 
                 dist = calcDistNodes(currMainNode.getLat(), currMainNode.getLon(), lat, lon);
-                if (minDist > dist)
+                if (minDist > dist) {
                     minDist = dist;
-                nearestNode = currMainNode;
+                    nearestNode = currMainNode;
+                }
             }
             return nearestNode;
         }
@@ -99,4 +88,3 @@ public class DijkstraNew {
             return dist;
         }
     }
-}

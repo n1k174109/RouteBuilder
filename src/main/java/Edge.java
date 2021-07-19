@@ -33,7 +33,7 @@ public class Edge {
     public double getDist() {
         return dist;
     }
-    public void setDist(Integer dist) {
+    public void setDist(double dist) {
         this.dist = dist;
     }
 
